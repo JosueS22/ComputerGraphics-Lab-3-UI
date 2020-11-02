@@ -7,9 +7,9 @@ BACKGROUND = (64,64,64)
 GREEN = (152,251,152)
 
 textures = {
-    '1' : pygame.image.load('./textures/diamond.png'),
-    '2' : pygame.image.load('./textures/stone.png'),
-    '3' : pygame.image.load('./textures/emerald.png')
+    '1' : pygame.image.load('./images/diamond.png'),
+    '2' : pygame.image.load('./images/stone.png'),
+    '3' : pygame.image.load('./images/emerald.png')
     }
 
 class Raycaster(object):
@@ -185,7 +185,11 @@ def gameLoop():
             r.message_to_screen(quit_text, WHITE, width/2, height/2+50)
 
             pygame.display.update()
+            
             screen.fill(BLACK)
+            back_image = pygame.image.load('./images/mine.jpg')
+            back_image = pygame.transform.scale( back_image, (1000,500))
+            screen.blit(back_image, (0,0))
 
             # Mouse position
             mouse = pygame.mouse.get_pos()
