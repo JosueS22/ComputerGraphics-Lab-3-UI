@@ -117,7 +117,6 @@ class Raycaster(object):
     def pause(self):
 
         paused = True
-
         while paused:
             for ev in pygame.event.get():
                 if ev.type == pygame.QUIT:
@@ -131,120 +130,135 @@ class Raycaster(object):
                     elif ev.key == pygame.K_q:
                         pygame.quit()
                         quit()
+
             screen.fill(BLACK)
-            pause_text = menu_font.render('Pausa', True, (255,255,255))
-            continue_text = menu_font.render('Presione C para continuar o Q para salir.', True, (255,255,255))
-            screen.blit(pause_text , (width/2,height/2))
-            screen.blit(continue_text , (width/2 - 250,height/2 + 30)) 
+
+            pause_text = 'Pausa'
+            continue_text = 'Presione C para continuar o Q para salir.'
+
+            self.message_to_screen(pause_text, WHITE, width/2, height/2)
+            self.message_to_screen(continue_text, WHITE, width/2 -150, height/2 + 30, 25)
 
             pygame.display.update()
             clock.tick(5)
 
-    def start(self):
+    def message_to_screen(self, msg, color, x, y, size = 35, font = 0):
+        font0 = pygame.font.SysFont('Corbel', size)
+        font1 = pygame.font.SysFont('Arial', size)
+        fonts = [font0, font1]
+        screen_text = fonts[font].render(msg, True, color)
+        screen.blit(screen_text, (x,y))
 
-        start = True
-
-        while start:
-            for ev in pygame.event.get():
-                if ev.type == pygame.MOUSEBUTTONDOWN:
-                    if width/2-5 <= mouse[0] <= width/2+80 and height/2-10 <= mouse[1] <= height/2+40:
-                        break
 
 pygame.init()
 screen = pygame.display.set_mode((1000,500), pygame.DOUBLEBUF | pygame.HWACCEL) #, pygame.FULLSCREEN)
 screen.set_alpha(None)
 clock = pygame.time.Clock()
 
-font = pygame.font.SysFont("Arial", 30)
-menu_font = pygame.font.SysFont('Corbel', 35)
-
 width = screen.get_width()
 height = screen.get_height()
 
-title = menu_font.render('MineGame', True, (255, 255, 255))
-start_text = menu_font.render('Start', True, (255,255,255))
-
 def updateFPS():
     fps = str(int(clock.get_fps()))
-    fps = font.render(fps, 1, pygame.Color("white"))
+    fps = pygame.font.SysFont('Corbel', 35).render(fps, 1, pygame.Color("white"))
     return fps
 
 r = Raycaster(screen)
 r.load_map('map.txt')
 
+
+
 isRunning = True
-while isRunning:
+def gameLoop():
+    isRunning = True
+    MainMenu = True
+    while isRunning:
 
-    # for ev in pygame.event.get():
-    #     if ev.type == pygame.QUIT:
-    #         isRunning = False
+        while MainMenu == True:
+            menu_text = 'MineGame'
+            menu_text2 = 'Presione START para iniciar o QUIT para salir.'
+            start_text = 'Start'
+            quit_text = 'Quit'
+            r.message_to_screen(menu_text, WHITE, width/2-40, height/2-100)
+            r.message_to_screen(menu_text2, WHITE, width/2 - 200, height/2 - 50, 25)
+            r.message_to_screen(start_text, WHITE, width/2, height/2)
+            r.message_to_screen(quit_text, WHITE, width/2, height/2+50)
 
-    #     if ev.type == pygame.MOUSEBUTTONDOWN:
-    #         if width/2-5 <= mouse[0] <= width/2+80 and height/2-10 <= mouse[1] <= height/2+40:
-    #             break
+            pygame.display.update()
+            screen.fill(BLACK)
 
-    for ev in pygame.event.get():
-        if ev.type == pygame.QUIT:
-            isRunning = False
+            # Mouse position
+            mouse = pygame.mouse.get_pos()
+            if width/2-5 <= mouse[0] <= width/2+80 and height/2-10 <= mouse[1] <= height/2+40:  
+                pygame.draw.rect(screen,(200,200,200),[width/2-5,height/2-10,80,50])  
+            else:
+                pygame.draw.rect(screen,(50,50,50),[width/2-5,height/2-10,80,50])
 
-        newX = r.player['x']
-        newY = r.player['y']
+            if width/2-5 <= mouse[0] <= width/2+80 and height/2+40 <= mouse[1] <= height/2+90:
+                pygame.draw.rect(screen,(200,200,200),[width/2-5,height/2+45,80,50])
+            else:
+                pygame.draw.rect(screen,(50,50,50),[width/2-5,height/2+45,80,50])
 
-        if ev.type == pygame.MOUSEBUTTONDOWN:
-            if width/2-5 <= mouse[0] <= width/2+80 and height/2-10 <= mouse[1] <= height/2+40:
-                break
-        
-        if ev.type == pygame.KEYDOWN:
-            if ev.key == pygame.K_ESCAPE:
+            for ev in pygame.event.get():
+                if ev.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+
+                if ev.type == pygame.MOUSEBUTTONDOWN:
+                    if width/2-5 <= mouse[0] <= width/2+80 and height/2-10 <= mouse[1] <= height/2+40:
+                        MainMenu = False
+                    if width/2-5 <= mouse[0] <= width/2+80 and height/2+40 <= mouse[1] <= height/2+90:
+                        pygame.quit()
+                        quit()
+
+        for ev in pygame.event.get():
+            if ev.type == pygame.QUIT:
                 isRunning = False
-            elif ev.key == pygame.K_w:
-                newX += cos(r.player['angle'] * pi / 180) * r.stepSize
-                newY += sin(r.player['angle'] * pi / 180) * r.stepSize
-            elif ev.key == pygame.K_s:
-                newX -= cos(r.player['angle'] * pi / 180) * r.stepSize
-                newY -= sin(r.player['angle'] * pi / 180) * r.stepSize
-            elif ev.key == pygame.K_a:
-                newX -= cos((r.player['angle'] + 90) * pi / 180) * r.stepSize
-                newY -= sin((r.player['angle'] + 90) * pi / 180) * r.stepSize
-            elif ev.key == pygame.K_d:
-                newX += cos((r.player['angle'] + 90) * pi / 180) * r.stepSize
-                newY += sin((r.player['angle'] + 90) * pi / 180) * r.stepSize
-            elif ev.key == pygame.K_q:
-                r.player['angle'] -= 5
-            elif ev.key == pygame.K_e:
-                r.player['angle'] += 5
-            elif ev.key == pygame.K_p:
-                r.pause()
+
+            newX = r.player['x']
+            newY = r.player['y']
+
+            if ev.type == pygame.MOUSEBUTTONDOWN:
+                if width/2-5 <= mouse[0] <= width/2+80 and height/2-10 <= mouse[1] <= height/2+40:
+                    break
+            
+            if ev.type == pygame.KEYDOWN:
+                if ev.key == pygame.K_ESCAPE:
+                    isRunning = False
+                elif ev.key == pygame.K_w:
+                    newX += cos(r.player['angle'] * pi / 180) * r.stepSize
+                    newY += sin(r.player['angle'] * pi / 180) * r.stepSize
+                elif ev.key == pygame.K_s:
+                    newX -= cos(r.player['angle'] * pi / 180) * r.stepSize
+                    newY -= sin(r.player['angle'] * pi / 180) * r.stepSize
+                elif ev.key == pygame.K_a:
+                    newX -= cos((r.player['angle'] + 90) * pi / 180) * r.stepSize
+                    newY -= sin((r.player['angle'] + 90) * pi / 180) * r.stepSize
+                elif ev.key == pygame.K_d:
+                    newX += cos((r.player['angle'] + 90) * pi / 180) * r.stepSize
+                    newY += sin((r.player['angle'] + 90) * pi / 180) * r.stepSize
+                elif ev.key == pygame.K_q:
+                    r.player['angle'] -= 5
+                elif ev.key == pygame.K_e:
+                    r.player['angle'] += 5
+                elif ev.key == pygame.K_p:
+                    r.pause()
 
 
-            i = int(newX / r.blocksize)
-            j = int(newY / r.blocksize)
+                i = int(newX / r.blocksize)
+                j = int(newY / r.blocksize)
 
-            if r.map[j][i] == ' ':
-                r.player['x'] = newX
-                r.player['y'] = newY
+                if r.map[j][i] == ' ':
+                    r.player['x'] = newX
+                    r.player['y'] = newY
 
-    # Mouse position
-    mouse = pygame.mouse.get_pos()
-
-    screen.fill(pygame.Color("dimgray")) #Fondo
-    
-    r.render()
-    
-    # FPS
-    screen.fill(pygame.Color("black"), (0,0,30,30))
-    screen.blit(updateFPS(), (0,0))
-    clock.tick(30)  
-    
-    if width/2-5 <= mouse[0] <= width/2+80 and height/2-10 <= mouse[1] <= height/2+40:  
-        pygame.draw.rect(screen,(200,200,200),[width/2-5,height/2-10,80,50])  
+        screen.fill(pygame.Color("dimgray")) #Fondo
+        r.render()
         
-    else:  
-        pygame.draw.rect(screen,(50,50,50),[width/2-5,height/2-10,80,50])  
-    
-    # superimposing the text onto our button  
-    screen.blit(start_text , (width/2,height/2)) 
-    
-    pygame.display.update()
+        # FPS
+        screen.fill(pygame.Color("black"), (0,0,35,40))
+        screen.blit(updateFPS(), (0,0))
+        clock.tick(30)  
+        pygame.display.update()
 
-# pygame.quit()
+gameLoop()
